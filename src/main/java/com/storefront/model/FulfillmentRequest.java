@@ -1,22 +1,28 @@
 package com.storefront.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
-@Document(collection = "customer.orders")
-public class Customer {
+@AllArgsConstructor
+public class FulfillmentRequest {
 
     @Id
     private String id;
+
+    @NotNull
+    private Long timestamp;
+
+    @NotNull
+    private Status status;
 
     @NonNull
     private Name name;
@@ -25,8 +31,9 @@ public class Customer {
     private Contact contact;
 
     @NonNull
-    private List<Address> addresses;
+    private Address address;
 
-    @NonNull
-    private List<Order> orders;
+    @NotNull
+    private Order order;
+
 }
