@@ -12,14 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Order {
 
-//    @DateTimeFormat(iso=DateTimeFormat.ISO.DATE_TIME)
-//    private java.util.Date timestamp;
-
     @NotNull
     private Long timestamp;
 
     @NotNull
-    private Status status;
+    private OrderStatus orderStatus;
 
     @NotNull
     private List<OrderItem> orderItems;

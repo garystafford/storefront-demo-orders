@@ -23,10 +23,10 @@ public class Receiver {
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.accounts-customer}")
-    public void receive(Customer candidate) {
-        log.info("received payload='{}'", candidate.toString());
+    public void receive(Customer customer) {
+        log.info("received payload='{}'", customer.toString());
         latch.countDown();
 
-        customerRepository.save(candidate);
+        customerRepository.save(customer);
     }
 }

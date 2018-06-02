@@ -19,9 +19,6 @@ public class FulfillmentRequest {
     @NotNull
     private Long timestamp;
 
-    @NotNull
-    private Status status;
-
     @NonNull
     private Name name;
 

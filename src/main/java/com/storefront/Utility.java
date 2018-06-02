@@ -2,8 +2,8 @@ package com.storefront;
 
 import com.storefront.model.Order;
 import com.storefront.model.OrderItem;
+import com.storefront.model.OrderStatus;
 import com.storefront.model.Product;
-import com.storefront.model.Status;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -43,7 +43,7 @@ public class Utility {
         for (int i = 0; i < randomProductQuantity(); i++) {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
-        Order order = new Order(timestamp.getTime(), Status.PENDING, orderItems);
+        Order order = new Order(timestamp.getTime(), OrderStatus.PENDING, orderItems);
 
         return order;
     }
@@ -60,21 +60,21 @@ public class Utility {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
         List<Order> orderList = new ArrayList<>();
-        orderList.add(new Order(timestamp.getTime(), Status.COMPLETED, orderItems));
+        orderList.add(new Order(timestamp.getTime(), OrderStatus.COMPLETED, orderItems));
 
         // Random Order #2
         orderItems = new ArrayList<>();
         for (int i = 0; i < randomProductQuantity(); i++) {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
-        orderList.add(new Order(timestamp.getTime(), Status.PENDING, orderItems));
+        orderList.add(new Order(timestamp.getTime(), OrderStatus.PENDING, orderItems));
 
         // Random Order #3
         orderItems = new ArrayList<>();
         for (int i = 0; i < randomProductQuantity(); i++) {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
-        orderList.add(new Order(timestamp.getTime(), Status.CANCELLED, orderItems));
+        orderList.add(new Order(timestamp.getTime(), OrderStatus.CANCELLED, orderItems));
 
         return orderList;
     }

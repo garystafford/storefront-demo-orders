@@ -6,7 +6,9 @@ import com.storefront.model.*;
 import com.storefront.respository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,13 +33,16 @@ public class CustomerController {
 
     private MongoTemplate mongoTemplate;
 
+    private MongoOperations mongoOperations;
+
     private Sender sender;
 
 
     @Autowired
-    public CustomerController(CustomerRepository customerRepository, MongoTemplate mongoTemplate, Sender sender) {
+    public CustomerController(CustomerRepository customerRepository, MongoTemplate mongoTemplate, MongoOperations mongoOperations, Sender sender) {
         this.customerRepository = customerRepository;
         this.mongoTemplate = mongoTemplate;
+        this.mongoOperations = mongoOperations;
         this.sender = sender;
     }
 
@@ -80,11 +86,23 @@ public class CustomerController {
 
     @RequestMapping(path = "/fulfill", method = RequestMethod.GET)
     public ResponseEntity<String> fulfillSampleOrder() {
-        List<Customer> customerList = customerRepository.findAll();
-//                mongoTemplate.find(new Query(where("order.status").is(Status.PENDING)), Customer.class);
+//        List<Customer> customerList =
+//                mongoTemplate.find(new Query(where("order.orderStatus").
+//                        elemMatch()
+//                        is(OrderStatus.PENDING)), Customer.class);
+
+        Criteria elementMatchCriteria = Criteria.where("orders").elemMatch(Criteria.where("orderStatus").is(OrderStatus.PENDING));
+        Query query = Query.query(elementMatchCriteria);
+//        query.fields().position("orders", 1);
+        List<Customer> customerList = mongoTemplate.find(query,Customer.class);
+
+        log.info("customerList size: " + customerList.get(0).toString());
+
 
         for (Customer customer : customerList) {
             FulfillmentRequest fulfillmentRequest = new FulfillmentRequest();
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            fulfillmentRequest.setTimestamp(timestamp.getTime());
             fulfillmentRequest.setName(customer.getName());
             fulfillmentRequest.setContact(customer.getContact());
 
@@ -98,7 +116,7 @@ public class CustomerController {
 
             Order pendingOrder = customer.getOrders()
                     .stream()
-                    .filter(o -> o.getStatus().equals(Status.PENDING))
+                    .filter(o -> o.getOrderStatus().equals(OrderStatus.PENDING))
                     .findFirst()
                     .orElse(null);
 
