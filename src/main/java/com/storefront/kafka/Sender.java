@@ -1,6 +1,5 @@
 package com.storefront.kafka;
 
-import com.storefront.model.Customer;
 import com.storefront.model.FulfillmentRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

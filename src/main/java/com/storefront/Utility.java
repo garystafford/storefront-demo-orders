@@ -33,6 +33,21 @@ public class Utility {
         return productList;
     }
 
+    public static Order createSampleOrder() {
+
+        List<Product> productList = createSampleProducts();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (int i = 0; i < randomProductQuantity(); i++) {
+            orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
+        }
+        Order order = new Order(timestamp.getTime(), Status.PENDING, orderItems);
+
+        return order;
+    }
+
     public static List<Order> createSampleOrderHistory() {
 
         List<Product> productList = createSampleProducts();
@@ -52,14 +67,14 @@ public class Utility {
         for (int i = 0; i < randomProductQuantity(); i++) {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
-        orderList.add(new Order(timestamp.getTime(), Status.PROCESSING, orderItems));
+        orderList.add(new Order(timestamp.getTime(), Status.PENDING, orderItems));
 
         // Random Order #3
         orderItems = new ArrayList<>();
         for (int i = 0; i < randomProductQuantity(); i++) {
             orderItems.add(new OrderItem(productList.get(randomProductListItem()), randomProductQuantity()));
         }
-        orderList.add(new Order(timestamp.getTime(), Status.PROCESSING, orderItems));
+        orderList.add(new Order(timestamp.getTime(), Status.CANCELLED, orderItems));
 
         return orderList;
     }

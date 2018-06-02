@@ -4,6 +4,7 @@ import com.storefront.Utility;
 import com.storefront.kafka.Sender;
 import com.storefront.model.*;
 import com.storefront.respository.CustomerRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -14,14 +15,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+@Slf4j
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
@@ -40,8 +40,8 @@ public class CustomerController {
         this.sender = sender;
     }
 
-    @RequestMapping(path = "/sample", method = RequestMethod.GET)
-    public ResponseEntity<String> sampleData() {
+    @RequestMapping(path = "/samples", method = RequestMethod.GET)
+    public ResponseEntity<String> sampleOrders() {
 
         List<Customer> customerList = customerRepository.findAll();
 
@@ -51,7 +51,23 @@ public class CustomerController {
 
         customerRepository.saveAll(customerList);
 
-        return new ResponseEntity("Customer order history added", HttpStatus.OK);
+        return new ResponseEntity("Orders to customer order history", HttpStatus.OK);
+    }
+
+    @RequestMapping(path = "/sample", method = RequestMethod.GET)
+    public ResponseEntity<String> sampleOrder() {
+
+        List<Customer> customerList = customerRepository.findAll();
+
+        for (Customer customer : customerList) {
+            List<Order> orderList = customer.getOrders();
+            orderList.add(Utility.createSampleOrder());
+            customer.setOrders(orderList);
+        }
+
+        customerRepository.saveAll(customerList);
+
+        return new ResponseEntity("New 'Pending' order added to customer order history", HttpStatus.OK);
     }
 
     @RequestMapping(path = "/summary", method = RequestMethod.GET)
@@ -62,10 +78,10 @@ public class CustomerController {
         return new ResponseEntity<>(Collections.singletonMap("customers", customerList), HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/fulfill-order", method = RequestMethod.GET)
+    @RequestMapping(path = "/fulfill", method = RequestMethod.GET)
     public ResponseEntity<String> fulfillSampleOrder() {
-        List<Customer> customerList =
-                mongoTemplate.find(new Query(where("order.status").is(Status.PENDING)),Customer.class);
+        List<Customer> customerList = customerRepository.findAll();
+//                mongoTemplate.find(new Query(where("order.status").is(Status.PENDING)), Customer.class);
 
         for (Customer customer : customerList) {
             FulfillmentRequest fulfillmentRequest = new FulfillmentRequest();
@@ -91,7 +107,7 @@ public class CustomerController {
             sender.send(fulfillmentRequest);
         }
 
-        return new ResponseEntity("Order sent for fulfillment", HttpStatus.OK);
+        return new ResponseEntity("All pending orders sent for fulfillment", HttpStatus.OK);
     }
 
 }

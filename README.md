@@ -33,7 +33,8 @@ apk update && apk add curl
 # so start on different port
 java -jar orders-1.0.0.jar \
     --spring.profiles.active=dev \
-    --server.port=8890
+    --server.port=8090 \
+    --logging.level.root=DEBUG
 ```
 
 ## Creating Sample Data
@@ -47,7 +48,7 @@ curl http://localhost:8080/customers/sample
 curl http://localhost:8890/products/sample
 
 # add sample order history to orders customers
-# (received from kafka `accounts.customer.save` topic)
+# (received from kafka `accounts.customers.change` topic)
 curl http://localhost:8890/customers/sample
 
 ```
@@ -63,7 +64,7 @@ fde71dcb89be        wurstmeister/kafka:latest       "start-kafka.sh"         21 
 ```
 ## Orders Customer Object in MongoDB
 
-`db.customer.find().pretty();`
+`db.customer.orders.find().pretty();`
 
 ```bson
 {
@@ -135,12 +136,12 @@ fde71dcb89be        wurstmeister/kafka:latest       "start-kafka.sh"         21 
 
 ## Current Results
 
-Output from application, on the `accounts.customer.save` topic
+Output from application, on the `accounts.customers.change` topic
 
 ```text
 2018-05-29 02:14:29.774  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.AbstractCoordinator  : [Consumer clientId=consumer-1, groupId=orders] Successfully joined group with generation 3
-2018-05-29 02:14:29.782  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-1, groupId=orders] Setting newly assigned partitions [accounts.customer.save-0]
-2018-05-29 02:14:29.789  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : partitions assigned: [accounts.customer.save-0]
+2018-05-29 02:14:29.782  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-1, groupId=orders] Setting newly assigned partitions [accounts.customers.change-0]
+2018-05-29 02:14:29.789  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : partitions assigned: [accounts.customers.change-0]
 2018-05-29 02:15:25.098  INFO [-,c7948d1dffbfabea,c7948d1dffbfabea,false] 312 --- [nio-8890-exec-1] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:2, serverValue:59}] to mongo:27017
 2018-05-29 02:16:09.902  INFO [-,905beb7476b150df,90f3b6934989d2ae,false] 312 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='Customer(id=5b0cb7e9be417600fda8c707, name=Name(title=Mr., firstName=John, middleName=S., lastName=Doe, suffix=Jr.), contact=Contact(primaryPhone=555-666-7777, secondaryPhone=555-444-9898, email=john.doe@internet.com), orders=null)'
 2018-05-29 02:16:09.920  INFO [-,905beb7476b150df,503afeb73b072ac4,false] 312 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='Customer(id=5b0cb7e9be417600fda8c708, name=Name(title=Ms., firstName=Mary, middleName=null, lastName=Smith, suffix=null), contact=Contact(primaryPhone=456-789-0001, secondaryPhone=456-222-1111, email=marysmith@yougotmail.com), orders=null)'
@@ -151,7 +152,7 @@ Output from Kafka container using the following command.
 ```bash
 kafka-console-consumer.sh \
   --bootstrap-server localhost:9092 \
-  --from-beginning --topic accounts.customer.save
+  --from-beginning --topic accounts.customers.change
 ```
 
 Kafka Consumer Output
@@ -161,18 +162,18 @@ Kafka Consumer Output
 {"id":"5b0ca230be4176002f6199a0","name":{"title":"Ms.","firstName":"Mary","middleName":null,"lastName":"Smith","suffix":null},"contact":{"primaryPhone":"456-789-0001","secondaryPhone":"456-222-1111","email":"marysmith@yougotmail.com"},"addresses":[{"type":"BILLING","description":"My CC billing address","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"},{"type":"SHIPPING","description":"Home Sweet Home","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"}],"creditCards":[{"type":"PRIMARY","description":"VISA","number":"4545-6767-8989-0000","expiration":"7/21","nameOnCard":"Mary Smith"}],"credentials":{"username":"msmith445","password":"S*$475hf&*dddFFG3"}}
 ```
 
-The `orders.order.save` topic is not used for this demo
+The `orders.order.fulfill` sends pending orders (FulfillmentRequest) to fulfillment, via topic
 
 ```bash
 kafka-topics.sh --create \
   --zookeeper zookeeper:2181 \
   --replication-factor 1 --partitions 1 \
-  --topic orders.order.save
+  --topic orders.order.fulfill
 ```
 
 ## References
 
 -   [Spring Kafka – Consumer and Producer Example](https://memorynotfound.com/spring-kafka-consume-producer-example/)
--   [Spring Kafka - JSON Serializer Deserializer Example
-    ](https://www.codenotfound.com/spring-kafka-json-serializer-deserializer-example.html)
+-   [Spring Kafka - JSON Serializer Deserializer Example](https://www.codenotfound.com/spring-kafka-json-serializer-deserializer-example.html)
 -   [Spring for Apache Kafka: 2.1.6.RELEASE](https://docs.spring.io/spring-kafka/reference/html/index.html)
+-   [Spring Data MongoDB - Reference Documentation](https://docs.spring.io/spring-data/mongodb/docs/current/reference/html/)
