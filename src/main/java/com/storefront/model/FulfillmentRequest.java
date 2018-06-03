@@ -11,9 +11,6 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class FulfillmentRequest {
 
-    @Id
-    private String id;
-
     @NonNull
     private Long timestamp;
 

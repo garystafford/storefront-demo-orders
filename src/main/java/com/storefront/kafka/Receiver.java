@@ -23,7 +23,7 @@ public class Receiver {
         return latch;
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic.accounts-customerOrders}")
+    @KafkaListener(topics = "${spring.kafka.topic.accounts-customer}")
     public void receive(CustomerOrders customerOrders) {
 
         log.info("received payload='{}'", customerOrders.toString());
