@@ -16,6 +16,7 @@ public class Sender {
     private KafkaTemplate<String, FulfillmentRequest> kafkaTemplate;
 
     public void send(FulfillmentRequest payload) {
+
         log.info("sending payload='{}' to topic='{}'", payload, topic);
         kafkaTemplate.send(topic, payload);
     }

@@ -31,9 +31,7 @@ apk update && apk add curl
 # start with 'dev' profile
 # same testapp container as accounts,
 # so start on different port
-java -jar orders-1.0.0.jar \
-    --spring.profiles.active=dev \
-    --server.port=8090 \
+java -jar orders-1.0.0.jar --spring.profiles.active=dev --server.port=8090 \
     --logging.level.root=DEBUG
 ```
 
@@ -68,73 +66,192 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 
 ## Orders Customer Object in MongoDB
 
-`db.customer.orders.find().pretty();`
+`db.customerOrders.orders.find().pretty();`
 
 ```bson
 {
-	"_id" : ObjectId("5b0c54e2be41760051d00383"),
+	"_id" : ObjectId("5b135dd0be4176000cf30284"),
 	"name" : {
-		"title" : "Mr.",
-		"firstName" : "John",
-		"middleName" : "S.",
-		"lastName" : "Doe",
-		"suffix" : "Jr."
+		"title" : "Ms.",
+		"firstName" : "Susan",
+		"lastName" : "Blackstone"
 	},
 	"contact" : {
-		"primaryPhone" : "555-666-7777",
-		"secondaryPhone" : "555-444-9898",
-		"email" : "john.doe@internet.com"
+		"primaryPhone" : "433-544-6555",
+		"secondaryPhone" : "223-445-6767",
+		"email" : "susan.m.blackstone@emailisus.com"
 	},
+	"addresses" : [
+		{
+			"type" : "BILLING",
+			"description" : "My CC billing address",
+			"address1" : "33 Oak Avenue",
+			"city" : "Nowhere",
+			"state" : "VT",
+			"postalCode" : "444556-9090"
+		},
+		{
+			"type" : "SHIPPING",
+			"description" : "Home Sweet Home",
+			"address1" : "33 Oak Avenue",
+			"city" : "Nowhere",
+			"state" : "VT",
+			"postalCode" : "444556-9090"
+		}
+	],
 	"orders" : [
 		{
-			"timestamp" : NumberLong("1527538871249"),
-			"orderStatus" : "COMPLETED",
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "CREATED"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "APPROVED"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "PROCESSING"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "SHIPPED"
+				}
+			],
 			"orderItems" : [
 				{
-					"productGuid" : "b5efd4a0-4eb9-4ad0-bc9e-2f5542cbe897",
-					"quantity" : 2,
-					"unitPrice" : "1.99"
+					"product" : {
+						"guid" : "a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d",
+						"title" : "Yellow Widget",
+						"description" : "Amazing Yellow Widget",
+						"price" : "5.99"
+					},
+					"quantity" : 2
 				},
 				{
-					"productGuid" : "a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d",
-					"quantity" : 4,
-					"unitPrice" : "5.99"
+					"product" : {
+						"guid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
+						"title" : "Purple Widget",
+						"description" : "Pretty Purple Widget",
+						"price" : "7.99"
+					},
+					"quantity" : 1
 				},
 				{
-					"productGuid" : "f3b9bdce-10d8-4c22-9861-27149879b3c1",
-					"quantity" : 1,
-					"unitPrice" : "9.99"
-				},
-				{
-					"productGuid" : "b506b962-fcfa-4ad6-a955-8859797edf16",
-					"quantity" : 3,
-					"unitPrice" : "13.99"
+					"product" : {
+						"guid" : "7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37",
+						"title" : "Green Widget",
+						"description" : "Gorgeous Green Widget",
+						"price" : "11.99"
+					},
+					"quantity" : 1
 				}
 			]
 		},
 		{
-			"timestamp" : NumberLong("1527538871249"),
-			"orderStatus" : "PROCESSING",
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "CREATED"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "APPROVED"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "PROCESSING"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "ON_HOLD",
+					"note" : "Items out of stock"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "CANCELLED",
+					"note" : "Ordered alternative items"
+				}
+			],
 			"orderItems" : [
 				{
-					"productGuid" : "d01fde07-7c24-49c5-a5f1-bc2ce1f14c48",
-					"quantity" : 5,
-					"unitPrice" : "3.99"
+					"product" : {
+						"guid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
+						"title" : "Purple Widget",
+						"description" : "Pretty Purple Widget",
+						"price" : "7.99"
+					},
+					"quantity" : 3
+				}
+			]
+		},
+		{
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "CREATED"
 				},
 				{
-					"productGuid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
-					"quantity" : 2,
-					"unitPrice" : "7.99"
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "APPROVED"
 				},
 				{
-					"productGuid" : "7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37",
-					"quantity" : 4,
-					"unitPrice" : "11.99"
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "PROCESSING"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "SHIPPED"
+				},
+				{
+					"timestamp" : NumberLong("1527996051100"),
+					"orderStatusType" : "RETURNED",
+					"note" : "Items damaged during shipping"
+				}
+			],
+			"orderItems" : [
+				{
+					"product" : {
+						"guid" : "7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37",
+						"title" : "Green Widget",
+						"description" : "Gorgeous Green Widget",
+						"price" : "11.99"
+					},
+					"quantity" : 4
+				},
+				{
+					"product" : {
+						"guid" : "b5efd4a0-4eb9-4ad0-bc9e-2f5542cbe897",
+						"title" : "Blue Widget",
+						"description" : "Brilliant Blue Widget",
+						"price" : "1.99"
+					},
+					"quantity" : 2
+				}
+			]
+		},
+		{
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1527996053859"),
+					"orderStatusType" : "APPROVED"
+				}
+			],
+			"orderItems" : [
+				{
+					"product" : {
+						"guid" : "d01fde07-7c24-49c5-a5f1-bc2ce1f14c48",
+						"title" : "Red Widget",
+						"description" : "Reliable Red Widget",
+						"price" : "3.99"
+					},
+					"quantity" : 4
 				}
 			]
 		}
 	],
-	"_class" : "com.storefront.model.Customer"
+	"_class" : "com.storefront.model.CustomerOrders"
 }
 ```
 
@@ -143,12 +260,12 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 Output from application, on the `accounts.customers.change` topic
 
 ```text
-2018-05-29 02:14:29.774  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.AbstractCoordinator  : [Consumer clientId=consumer-1, groupId=orders] Successfully joined group with generation 3
-2018-05-29 02:14:29.782  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-1, groupId=orders] Setting newly assigned partitions [accounts.customers.change-0]
-2018-05-29 02:14:29.789  INFO [-,,,] 312 --- [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : partitions assigned: [accounts.customers.change-0]
-2018-05-29 02:15:25.098  INFO [-,c7948d1dffbfabea,c7948d1dffbfabea,false] 312 --- [nio-8890-exec-1] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:2, serverValue:59}] to mongo:27017
-2018-05-29 02:16:09.902  INFO [-,905beb7476b150df,90f3b6934989d2ae,false] 312 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='Customer(id=5b0cb7e9be417600fda8c707, name=Name(title=Mr., firstName=John, middleName=S., lastName=Doe, suffix=Jr.), contact=Contact(primaryPhone=555-666-7777, secondaryPhone=555-444-9898, email=john.doe@internet.com), orders=null)'
-2018-05-29 02:16:09.920  INFO [-,905beb7476b150df,503afeb73b072ac4,false] 312 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='Customer(id=5b0cb7e9be417600fda8c708, name=Name(title=Ms., firstName=Mary, middleName=null, lastName=Smith, suffix=null), contact=Contact(primaryPhone=456-789-0001, secondaryPhone=456-222-1111, email=marysmith@yougotmail.com), orders=null)'
+2018-06-03 03:38:21.184  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] o.a.kafka.common.utils.AppInfoParser     : Kafka version : 1.0.1
+2018-06-03 03:38:21.185  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId : c0518aa65f25317e
+2018-06-03 03:38:21.347  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] c.s.controller.CustomerController        : pendingOrder: Order(orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=1), OrderItem(product=Product(id=null, guid=4efe33a1-722d-48c8-af8e-7879edcad2fa, title=Purple Widget, description=Pretty Purple Widget, price=7.99), quantity=4), OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=4)])
+2018-06-03 03:38:21.350  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] com.storefront.kafka.Sender              : sending payload='FulfillmentRequest(id=null, timestamp=1527997101346, name=Name(title=Ms., firstName=Mary, middleName=null, lastName=Smith, suffix=null), contact=Contact(primaryPhone=456-789-0001, secondaryPhone=456-222-1111, email=marysmith@yougotmail.com), address=Address(type=SHIPPING, description=Home Sweet Home, address1=1234 Main Street, address2=null, city=Anywhere, state=NY, postalCode=45455-66677), order=Order(orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=1), OrderItem(product=Product(id=null, guid=4efe33a1-722d-48c8-af8e-7879edcad2fa, title=Purple Widget, description=Pretty Purple Widget, price=7.99), quantity=4), OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=4)]))' to topic='orders.order.fulfill'
+2018-06-03 03:38:21.352  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] c.s.controller.CustomerController        : pendingOrder: Order(orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=d01fde07-7c24-49c5-a5f1-bc2ce1f14c48, title=Red Widget, description=Reliable Red Widget, price=3.99), quantity=4)])
+2018-06-03 03:38:21.354  INFO [-,bc93daf404024134,bc93daf404024134,false] 188 --- [nio-8090-exec-1] com.storefront.kafka.Sender              : sending payload='FulfillmentRequest(id=null, timestamp=1527997101352, name=Name(title=Ms., firstName=Susan, middleName=null, lastName=Blackstone, suffix=null), contact=Contact(primaryPhone=433-544-6555, secondaryPhone=223-445-6767, email=susan.m.blackstone@emailisus.com), address=Address(type=SHIPPING, description=Home Sweet Home, address1=33 Oak Avenue, address2=null, city=Nowhere, state=VT, postalCode=444556-9090), order=Order(orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=d01fde07-7c24-49c5-a5f1-bc2ce1f14c48, title=Red Widget, description=Reliable Red Widget, price=3.99), quantity=4)]))' to topic='orders.order.fulfill'
 ```
 
 Output from Kafka container using the following command.
@@ -156,14 +273,15 @@ Output from Kafka container using the following command.
 ```bash
 kafka-console-consumer.sh \
   --bootstrap-server localhost:9092 \
-  --from-beginning --topic accounts.customers.change
+  --from-beginning --topic orders.order.fulfill
 ```
 
 Kafka Consumer Output
 
 ```text
-{"id":"5b0ca230be4176002f61999f","name":{"title":"Mr.","firstName":"John","middleName":"S.","lastName":"Doe","suffix":"Jr."},"contact":{"primaryPhone":"555-666-7777","secondaryPhone":"555-444-9898","email":"john.doe@internet.com"},"addresses":[{"type":"BILLING","description":"My cc billing address","address1":"123 Oak Street","address2":null,"city":"Sunrise","state":"CA","postalCode":"12345-6789"},{"type":"SHIPPING","description":"My home address","address1":"123 Oak Street","address2":null,"city":"Sunrise","state":"CA","postalCode":"12345-6789"}],"creditCards":[{"type":"PRIMARY","description":"VISA","number":"1234-6789-0000-0000","expiration":"6/19","nameOnCard":"John S. Doe"},{"type":"ALTERNATE","description":"Corporate American Express","number":"9999-8888-7777-6666","expiration":"3/20","nameOnCard":"John Doe"}],"credentials":{"username":"johndoe37","password":"skd837#$hfh485&"}}
-{"id":"5b0ca230be4176002f6199a0","name":{"title":"Ms.","firstName":"Mary","middleName":null,"lastName":"Smith","suffix":null},"contact":{"primaryPhone":"456-789-0001","secondaryPhone":"456-222-1111","email":"marysmith@yougotmail.com"},"addresses":[{"type":"BILLING","description":"My CC billing address","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"},{"type":"SHIPPING","description":"Home Sweet Home","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"}],"creditCards":[{"type":"PRIMARY","description":"VISA","number":"4545-6767-8989-0000","expiration":"7/21","nameOnCard":"Mary Smith"}],"credentials":{"username":"msmith445","password":"S*$475hf&*dddFFG3"}}
+{"id":null,"timestamp":1527997101119,"name":{"title":"Mr.","firstName":"John","middleName":"S.","lastName":"Doe","suffix":"Jr."},"contact":{"primaryPhone":"555-666-7777","secondaryPhone":"555-444-9898","email":"john.doe@internet.com"},"address":{"type":"SHIPPING","description":"My home address","address1":"123 Oak Street","address2":null,"city":"Sunrise","state":"CA","postalCode":"12345-6789"},"order":{"orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"f3b9bdce-10d8-4c22-9861-27149879b3c1","title":"Orange Widget","description":"Opulent Orange Widget","price":9.99},"quantity":3},{"product":{"id":null,"guid":"7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37","title":"Green Widget","description":"Gorgeous Green Widget","price":11.99},"quantity":4}]}}
+{"id":null,"timestamp":1527997101346,"name":{"title":"Ms.","firstName":"Mary","middleName":null,"lastName":"Smith","suffix":null},"contact":{"primaryPhone":"456-789-0001","secondaryPhone":"456-222-1111","email":"marysmith@yougotmail.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"},"order":{"orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":1},{"product":{"id":null,"guid":"4efe33a1-722d-48c8-af8e-7879edcad2fa","title":"Purple Widget","description":"Pretty Purple Widget","price":7.99},"quantity":4},{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":4}]}}
+{"id":null,"timestamp":1527997101352,"name":{"title":"Ms.","firstName":"Susan","middleName":null,"lastName":"Blackstone","suffix":null},"contact":{"primaryPhone":"433-544-6555","secondaryPhone":"223-445-6767","email":"susan.m.blackstone@emailisus.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"33 Oak Avenue","address2":null,"city":"Nowhere","state":"VT","postalCode":"444556-9090"},"order":{"orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"d01fde07-7c24-49c5-a5f1-bc2ce1f14c48","title":"Red Widget","description":"Reliable Red Widget","price":3.99},"quantity":4}]}}
 ```
 
 The `orders.order.fulfill` sends pending orders (FulfillmentRequest) to fulfillment, via topic

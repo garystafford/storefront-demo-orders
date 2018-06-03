@@ -1,7 +1,7 @@
 package com.storefront.controller;
 
-import com.storefront.Utility;
 import com.storefront.respository.ProductRepository;
+import com.storefront.utilities.SampleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,7 @@ public class ProductController {
 
     @Autowired
     public ProductController(ProductRepository productRepository) {
+
         this.productRepository = productRepository;
     }
 
@@ -25,7 +26,7 @@ public class ProductController {
     public ResponseEntity<String> createSampleData() {
 
         productRepository.deleteAll();
-        productRepository.saveAll(Utility.createSampleProducts());
+        productRepository.saveAll(SampleData.createSampleProducts());
 
         return new ResponseEntity("Sample data created", HttpStatus.CREATED);
     }

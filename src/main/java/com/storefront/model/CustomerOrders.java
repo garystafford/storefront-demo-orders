@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Document(collection = "customer.orders")
-public class Customer {
+public class CustomerOrders {
 
     @Id
     private String id;

@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 
-import javax.validation.constraints.NotNull;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +14,7 @@ public class FulfillmentRequest {
     @Id
     private String id;
 
-    @NotNull
+    @NonNull
     private Long timestamp;
 
     @NonNull
@@ -28,7 +26,7 @@ public class FulfillmentRequest {
     @NonNull
     private Address address;
 
-    @NotNull
+    @NonNull
     private Order order;
 
 }

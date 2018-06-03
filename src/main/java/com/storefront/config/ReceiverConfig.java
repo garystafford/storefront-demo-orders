@@ -1,7 +1,7 @@
 package com.storefront.config;
 
 import com.storefront.kafka.Receiver;
-import com.storefront.model.Customer;
+import com.storefront.model.CustomerOrders;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +31,7 @@ public class ReceiverConfig {
 
     @Bean
     public Map<String, Object> consumerConfigs() {
+
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -42,14 +43,16 @@ public class ReceiverConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Customer> consumerFactory() {
+    public ConsumerFactory<String, CustomerOrders> consumerFactory() {
+
         return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
-                new JsonDeserializer<>(Customer.class));
+                new JsonDeserializer<>(CustomerOrders.class));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Customer> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Customer> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, CustomerOrders> kafkaListenerContainerFactory() {
+
+        ConcurrentKafkaListenerContainerFactory<String, CustomerOrders> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
 
@@ -58,6 +61,7 @@ public class ReceiverConfig {
 
     @Bean
     public Receiver receiver() {
+
         return new Receiver();
     }
 }
