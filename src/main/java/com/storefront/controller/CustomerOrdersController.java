@@ -6,6 +6,7 @@ import com.storefront.respository.CustomerOrdersRepository;
 import com.storefront.utilities.SampleData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -29,6 +30,9 @@ public class CustomerOrdersController {
     private CustomerOrdersRepository customerOrdersRepository;
 
     private MongoTemplate mongoTemplate;
+
+    @Value("${spring.kafka.topic.orders-order}")
+    private String topic;
 
     private Sender sender;
 
@@ -121,7 +125,7 @@ public class CustomerOrdersController {
 
             fulfillmentRequest.setOrder(pendingOrder);
 
-            sender.send(fulfillmentRequest);
+            sender.send(topic, fulfillmentRequest);
         }
 
         return new ResponseEntity("All 'Approved' orders sent for fulfillment", HttpStatus.OK);

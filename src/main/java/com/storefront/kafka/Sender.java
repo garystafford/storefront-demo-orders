@@ -9,13 +9,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 @Slf4j
 public class Sender {
 
-    @Value("${spring.kafka.topic.orders-order}")
-    private String topic;
-
     @Autowired
     private KafkaTemplate<String, FulfillmentRequest> kafkaTemplate;
 
-    public void send(FulfillmentRequest payload) {
+    public void send(String topic, FulfillmentRequest payload) {
 
         log.info("sending payload='{}' to topic='{}'", payload, topic);
         kafkaTemplate.send(topic, payload);
