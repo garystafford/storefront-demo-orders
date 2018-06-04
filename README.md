@@ -72,7 +72,7 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 
 ## Orders Customer Object in MongoDB
 
-`db.customerOrders.orders.find().pretty();`
+`db.customer.orders.find().pretty();`
 
 ```bson
 {
