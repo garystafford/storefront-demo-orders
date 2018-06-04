@@ -30,16 +30,6 @@ public class SampleData {
         return productList;
     }
 
-    public static Order createSampleOrder() {
-
-        List<OrderItem> orderItems = getRandomOrderItems();
-        List<OrderStatusEvent> orderStatusEventList = new ArrayList<>();
-        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.APPROVED));
-        Order order = new Order(orderStatusEventList, orderItems);
-
-        return order;
-    }
-
     public static List<Order> createSampleOrderHistory() {
 
 
@@ -71,6 +61,13 @@ public class SampleData {
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.PROCESSING));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.SHIPPED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.RETURNED, "Items damaged during shipping"));
+        orderList.add(new Order(orderStatusEventList, orderItems));
+
+        // Random Order #4
+        orderItems = getRandomOrderItems();
+        orderStatusEventList = new ArrayList<>();
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.APPROVED));
         orderList.add(new Order(orderStatusEventList, orderItems));
 
         return orderList;

@@ -47,7 +47,7 @@ public class CustomerOrdersController {
         this.sender = sender;
     }
 
-    @RequestMapping(path = "/samples", method = RequestMethod.GET)
+    @RequestMapping(path = "/sample/orders", method = RequestMethod.GET)
     public ResponseEntity<String> sampleOrders() {
 
         List<CustomerOrders> customerOrdersList = customerOrdersRepository.findAll();
@@ -58,23 +58,7 @@ public class CustomerOrdersController {
 
         customerOrdersRepository.saveAll(customerOrdersList);
 
-        return new ResponseEntity("New orders added to customer orders", HttpStatus.OK);
-    }
-
-    @RequestMapping(path = "/sample", method = RequestMethod.GET)
-    public ResponseEntity<String> sampleOrder() {
-
-        List<CustomerOrders> customerOrdersList = customerOrdersRepository.findAll();
-
-        for (CustomerOrders customerOrders : customerOrdersList) {
-            List<Order> orderList = customerOrders.getOrders();
-            orderList.add(SampleData.createSampleOrder());
-            customerOrders.setOrders(orderList);
-        }
-
-        customerOrdersRepository.saveAll(customerOrdersList);
-
-        return new ResponseEntity("New 'Approved' order added to customer orders", HttpStatus.OK);
+        return new ResponseEntity("Four orders added to customer orders", HttpStatus.OK);
     }
 
     @RequestMapping(path = "/summary", method = RequestMethod.GET)
@@ -120,8 +104,7 @@ public class CustomerOrdersController {
                     .findFirst()
                     .orElse(null);
 
-            log.info("pendingOrder: " + pendingOrder + '\n');
-
+            log.info("pending order: " + pendingOrder + '\n');
 
             fulfillmentRequest.setOrder(pendingOrder);
 
