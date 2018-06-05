@@ -38,12 +38,19 @@ public class SampleData {
         List<Order> orderList = new ArrayList<>();
         List<OrderStatusEvent> orderStatusEventList = new ArrayList<>();
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.REJECTED, "Primary credit card expired"));
+        orderList.add(new Order(orderStatusEventList, orderItems));
+
+        // Random Order #2
+        orderItems = getRandomOrderItems();
+        orderStatusEventList = new ArrayList<>();
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.APPROVED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.PROCESSING));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.SHIPPED));
         orderList.add(new Order(orderStatusEventList, orderItems));
 
-        // Random Order #2
+        // Random Order #3
         orderItems = getRandomOrderItems();
         orderStatusEventList = new ArrayList<>();
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
@@ -53,7 +60,7 @@ public class SampleData {
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CANCELLED, "Ordered alternative items"));
         orderList.add(new Order(orderStatusEventList, orderItems));
 
-        // Random Order #3
+        // Random Order #4
         orderItems = getRandomOrderItems();
         orderStatusEventList = new ArrayList<>();
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
@@ -63,7 +70,7 @@ public class SampleData {
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.RETURNED, "Items damaged during shipping"));
         orderList.add(new Order(orderStatusEventList, orderItems));
 
-        // Random Order #4
+        // Random Order #5
         orderItems = getRandomOrderItems();
         orderStatusEventList = new ArrayList<>();
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
