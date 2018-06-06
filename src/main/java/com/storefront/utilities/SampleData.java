@@ -47,7 +47,7 @@ public class SampleData {
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.APPROVED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.PROCESSING));
-        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.SHIPPED));
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.COMPLETED));
         orderList.add(new Order(orderStatusEventList, orderItems));
 
         // Random Order #3
@@ -66,7 +66,7 @@ public class SampleData {
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.CREATED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.APPROVED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.PROCESSING));
-        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.SHIPPED));
+        orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.COMPLETED));
         orderStatusEventList.add(new OrderStatusEvent(OrderStatusType.RETURNED, "Items damaged during shipping"));
         orderList.add(new Order(orderStatusEventList, orderItems));
 

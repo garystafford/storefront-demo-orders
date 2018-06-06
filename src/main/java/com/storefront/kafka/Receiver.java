@@ -1,5 +1,6 @@
 package com.storefront.kafka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.storefront.model.CustomerOrders;
 import com.storefront.model.OrderStatusEventChange;
 import com.storefront.respository.CustomerOrdersRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
@@ -33,16 +35,15 @@ public class Receiver {
     @KafkaListener(topics = "${spring.kafka.topic.accounts-customer}")
     public void receiveCustomerOrder(CustomerOrders customerOrders) {
 
-        log.info("received payload='{}'", customerOrders.toString());
+        log.info("received payload='{}'", customerOrders);
         latch.countDown();
-
         customerOrdersRepository.save(customerOrders);
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.fulfillment-order}")
     public void receiveOrderStatusEvents(OrderStatusEventChange orderStatusEventChange) {
 
-        log.info("received payload='{}'", orderStatusEventChange.toString());
+        log.info("received payload='{}'", orderStatusEventChange);
         latch.countDown();
 
         Criteria elementMatchCriteria = Criteria.where("orders.order")
