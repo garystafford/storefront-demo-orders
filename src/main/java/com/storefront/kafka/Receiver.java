@@ -1,6 +1,7 @@
 package com.storefront.kafka;
 
 import com.storefront.model.CustomerOrders;
+import com.storefront.model.Order;
 import com.storefront.model.OrderStatusEventChange;
 import com.storefront.respository.CustomerOrdersRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class Receiver {
     @Autowired
     private CustomerOrdersRepository customerOrdersRepository;
 
+    @Autowired
     private MongoTemplate mongoTemplate;
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -44,11 +46,14 @@ public class Receiver {
         log.info("received payload='{}'", orderStatusEventChange);
         latch.countDown();
 
-        Criteria elementMatchCriteria = Criteria.where("orders.order")
-                .elemMatch(Criteria.where("guid").is(orderStatusEventChange.getGuid()));
-        Query query = Query.query(elementMatchCriteria);
+        Criteria criteria = Criteria.where("orders.guid")
+                .is(orderStatusEventChange.getGuid());
+        Query query = Query.query(criteria);
+//        CustomerOrders customerOrders = mongoTemplate.findOne(query, CustomerOrders.class, "customer.orders");
+//        log.info(customerOrders.toString());
+
         Update update = new Update();
-        update.addToSet("orders.order.orderStatusEvents", orderStatusEventChange);
-        mongoTemplate.updateFirst(query, update, CustomerOrders.class);
+        update.addToSet("orders.$.orderStatusEvents", orderStatusEventChange.getOrderStatusEvent());
+        mongoTemplate.updateFirst(query, update, "customer.orders");
     }
 }
