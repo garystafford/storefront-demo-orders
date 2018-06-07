@@ -8,31 +8,14 @@ Originally code based on the post, [Spring Kafka - JSON Serializer Deserializer 
 
 ## Development
 
-For [Kakfa](https://kafka.apache.org/), I use my [garystafford/kafka-docker](https://github.com/garystafford/kafka-docker) project, a clone of the [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker) project. The `garystafford/kafka-docker` [local docker-compose file](https://github.com/garystafford/kafka-docker/blob/master/docker-compose-local.yml) builds a Kafka, ZooKeeper, MongoDB, and Alpine Linux OpenJDK container.
+For [Kakfa](https://kafka.apache.org/), I use my [garystafford/kafka-docker](https://github.com/garystafford/kafka-docker) project, a clone of the [wurstmeister/kafka-docker](https://github.com/wurstmeister/kafka-docker) project. The `garystafford/kafka-docker` [local docker-compose file](https://github.com/garystafford/kafka-docker/blob/master/docker-compose-local.yml) builds a Kafka, Kafka Manager, ZooKeeper, and MongoDB.
 
 ## Commands
 
-I debug directly from JetBrains IntelliJ. For testing the application in development, I build the jar, copy it to Alpine Linux OpenJDK `testapp` container, and run it. If testing more than one service in the same testapp container, make sure ports don't collide. Start services on different ports.
+I develop and debug directly from JetBrains IntelliJ. The default Spring profile will start the three services on different ports.
 
 ```bash
-# start container if stopped
-docker start kafka-docker_testapp_1
-
-# build
-./gradlew clean build
-
-# copy
-docker cp build/libs/orders-1.0.0.jar kafka-docker_testapp_1:/orders-1.0.0.jar
-docker exec -it kafka-docker_testapp_1 sh
-
-# install curl
-apk update && apk add curl
-
-# start with 'dev' profile
-# same testapp container as accounts,
-# so start on different port
-java -jar orders-1.0.0.jar --spring.profiles.active=dev --server.port=8090 \
-    --logging.level.root=DEBUG
+./gradlew clean build bootRun
 ```
 
 ## Creating Sample Data
@@ -41,29 +24,28 @@ Create sample data for each service. Requires Kafka is running.
 
 ```bash
 # accounts: create sample customer accounts
-curl http://localhost:8085/customers/sample
+http http://localhost:8085/customers/sample
 
 # orders: create sample products
-curl http://localhost:8090/products/sample
+http http://localhost:8090/products/sample
 
 # orders: add sample orders to each customer
-curl http://localhost:8090/customers/sample/orders
+http http://localhost:8090/customers/sample/orders
 
 # orders: send approved orders to fulfillment service
-curl http://localhost:8090/customers/fulfill
+http http://localhost:8090/customers/fulfill
 
 # fulfillment: change fulfillment requests from approved to processing
-curl http://localhost:8095/fulfillment/sample/process
+http http://localhost:8095/fulfillment/sample/process
 
 # fulfillment: change fulfillment requests from processing to completed
-curl http://localhost:8095/fulfillment/sample/complete
+http http://localhost:8095/fulfillment/sample/complete
 ```
 
 ## Container Infrastructure
 
 ```text
 CONTAINER ID        IMAGE                            COMMAND                  CREATED             STATUS              PORTS                                                NAMES
-6079603c5d92        openjdk:8u151-jdk-alpine3.7      "sleep 6000"             4 hours ago         Up About an hour                                                         kafka-docker_testapp_1
 df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   4 hours ago         Up 4 hours          0.0.0.0:9000->9000/tcp                               kafka-docker_kafka_manager_1
 5cd8f61330e0        wurstmeister/kafka:latest        "start-kafka.sh"         4 hours ago         Up 4 hours          0.0.0.0:9092->9092/tcp                               kafka-docker_kafka_1
 497901621c7d        mongo:latest                     "docker-entrypoint.s…"   4 hours ago         Up 4 hours          0.0.0.0:27017->27017/tcp                             kafka-docker_mongo_1
@@ -72,11 +54,16 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 
 ## Orders Customer Object in MongoDB
 
-`db.customer.orders.find().pretty();`
+```bash
+docker exec -it kafka-docker_mongo_1 sh
+mongo
+db.customer.orders.find().pretty();
+db.customer.orders.remove({});
+```
 
 ```bson
 {
-	"_id" : ObjectId("5b135dd0be4176000cf30284"),
+	"_id" : ObjectId("5b188580a8d0560aab7593f6"),
 	"name" : {
 		"title" : "Ms.",
 		"firstName" : "Susan",
@@ -107,22 +94,48 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 	],
 	"orders" : [
 		{
+			"guid" : "77bc4ea8-e6bf-4c9f-b43a-2d4e69863426",
 			"orderStatusEvents" : [
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "CREATED"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "REJECTED",
+					"note" : "Primary credit card expired"
+				}
+			],
+			"orderItems" : [
+				{
+					"product" : {
+						"guid" : "b5efd4a0-4eb9-4ad0-bc9e-2f5542cbe897",
+						"title" : "Blue Widget",
+						"description" : "Brilliant Blue Widget",
+						"price" : "1.99"
+					},
+					"quantity" : 3
+				}
+			]
+		},
+		{
+			"guid" : "cb466e99-4ad2-4332-8b10-043d14528459",
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "CREATED"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "APPROVED"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "PROCESSING"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "SHIPPED"
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "COMPLETED"
 				}
 			],
 			"orderItems" : [
@@ -137,83 +150,39 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 				},
 				{
 					"product" : {
-						"guid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
-						"title" : "Purple Widget",
-						"description" : "Pretty Purple Widget",
-						"price" : "7.99"
-					},
-					"quantity" : 1
-				},
-				{
-					"product" : {
-						"guid" : "7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37",
-						"title" : "Green Widget",
-						"description" : "Gorgeous Green Widget",
-						"price" : "11.99"
-					},
-					"quantity" : 1
-				}
-			]
-		},
-		{
-			"orderStatusEvents" : [
-				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "CREATED"
-				},
-				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "APPROVED"
-				},
-				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "PROCESSING"
-				},
-				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "ON_HOLD",
-					"note" : "Items out of stock"
-				},
-				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "CANCELLED",
-					"note" : "Ordered alternative items"
-				}
-			],
-			"orderItems" : [
-				{
-					"product" : {
-						"guid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
-						"title" : "Purple Widget",
-						"description" : "Pretty Purple Widget",
-						"price" : "7.99"
+						"guid" : "b5efd4a0-4eb9-4ad0-bc9e-2f5542cbe897",
+						"title" : "Blue Widget",
+						"description" : "Brilliant Blue Widget",
+						"price" : "1.99"
 					},
 					"quantity" : 3
 				}
 			]
 		},
 		{
+			"guid" : "fbd6a360-047c-4294-89d5-44c729a1e7dd",
 			"orderStatusEvents" : [
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "CREATED"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "APPROVED"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "PROCESSING"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "SHIPPED"
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "ON_HOLD",
+					"note" : "Items out of stock"
 				},
 				{
-					"timestamp" : NumberLong("1527996051100"),
-					"orderStatusType" : "RETURNED",
-					"note" : "Items damaged during shipping"
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "CANCELLED",
+					"note" : "Ordered alternative items"
 				}
 			],
 			"orderItems" : [
@@ -228,20 +197,38 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 				},
 				{
 					"product" : {
-						"guid" : "b5efd4a0-4eb9-4ad0-bc9e-2f5542cbe897",
-						"title" : "Blue Widget",
-						"description" : "Brilliant Blue Widget",
-						"price" : "1.99"
+						"guid" : "f3b9bdce-10d8-4c22-9861-27149879b3c1",
+						"title" : "Orange Widget",
+						"description" : "Opulent Orange Widget",
+						"price" : "9.99"
 					},
-					"quantity" : 2
+					"quantity" : 5
 				}
 			]
 		},
 		{
+			"guid" : "ec498afc-e53c-40f7-bbd5-662476f30a9e",
 			"orderStatusEvents" : [
 				{
-					"timestamp" : NumberLong("1527996053859"),
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "CREATED"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
 					"orderStatusType" : "APPROVED"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "PROCESSING"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "COMPLETED"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "RETURNED",
+					"note" : "Items damaged during shipping"
 				}
 			],
 			"orderItems" : [
@@ -252,7 +239,50 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 						"description" : "Reliable Red Widget",
 						"price" : "3.99"
 					},
-					"quantity" : 4
+					"quantity" : 5
+				}
+			]
+		},
+		{
+			"guid" : "f52e2930-ef31-44db-a53c-b7ba4ae3f5cf",
+			"orderStatusEvents" : [
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "CREATED"
+				},
+				{
+					"timestamp" : NumberLong("1528333926586"),
+					"orderStatusType" : "APPROVED"
+				},
+				{
+					"timestamp" : NumberLong("1528334452800"),
+					"orderStatusType" : "PROCESSING",
+					"_class" : "com.storefront.model.OrderStatusEvent"
+				},
+				{
+					"timestamp" : NumberLong("1528334457603"),
+					"orderStatusType" : "COMPLETED",
+					"_class" : "com.storefront.model.OrderStatusEvent"
+				}
+			],
+			"orderItems" : [
+				{
+					"product" : {
+						"guid" : "d01fde07-7c24-49c5-a5f1-bc2ce1f14c48",
+						"title" : "Red Widget",
+						"description" : "Reliable Red Widget",
+						"price" : "3.99"
+					},
+					"quantity" : 2
+				},
+				{
+					"product" : {
+						"guid" : "4efe33a1-722d-48c8-af8e-7879edcad2fa",
+						"title" : "Purple Widget",
+						"description" : "Pretty Purple Widget",
+						"price" : "7.99"
+					},
+					"quantity" : 5
 				}
 			]
 		}
@@ -266,12 +296,11 @@ df8914058cbb        hlebalbau/kafka-manager:latest   "/kafka-manager/bin/…"   
 Output from application, on the `accounts.customers.change` topic
 
 ```text
-2018-06-03 04:35:29.986  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] o.a.kafka.common.utils.AppInfoParser     : Kafka version : 1.0.1
-2018-06-03 04:35:29.987  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId : c0518aa65f25317e
-2018-06-03 04:35:30.153  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] c.s.controller.CustomerOrdersController  : pendingOrder: Order(guid=d51113cd-fbc1-45b3-b3e9-53b78d22b5bf, orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=1), OrderItem(product=Product(id=null, guid=4efe33a1-722d-48c8-af8e-7879edcad2fa, title=Purple Widget, description=Pretty Purple Widget, price=7.99), quantity=4), OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=4)])
-2018-06-03 04:35:30.153  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] com.storefront.kafka.Sender              : sending payload='FulfillmentRequest(id=null, timestamp=1528000530153, name=Name(title=Ms., firstName=Mary, middleName=null, lastName=Smith, suffix=null), contact=Contact(primaryPhone=456-789-0001, secondaryPhone=456-222-1111, email=marysmith@yougotmail.com), address=Address(type=SHIPPING, description=Home Sweet Home, address1=1234 Main Street, address2=null, city=Anywhere, state=NY, postalCode=45455-66677), order=Order(guid=d51113cd-fbc1-45b3-b3e9-53b78d22b5bf, orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=1), OrderItem(product=Product(id=null, guid=4efe33a1-722d-48c8-af8e-7879edcad2fa, title=Purple Widget, description=Pretty Purple Widget, price=7.99), quantity=4), OrderItem(product=Product(id=null, guid=a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d, title=Yellow Widget, description=Amazing Yellow Widget, price=5.99), quantity=4)]))' to topic='orders.order.fulfill'
-2018-06-03 04:35:30.156  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] c.s.controller.CustomerOrdersController  : pendingOrder: Order(guid=05f3d73c-df01-4b31-87b0-3b65065222bd, orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=d01fde07-7c24-49c5-a5f1-bc2ce1f14c48, title=Red Widget, description=Reliable Red Widget, price=3.99), quantity=4)])
-2018-06-03 04:35:30.156  INFO [-,22522599812e75b1,22522599812e75b1,false] 406 --- [nio-8090-exec-2] com.storefront.kafka.Sender              : sending payload='FulfillmentRequest(id=null, timestamp=1528000530156, name=Name(title=Ms., firstName=Susan, middleName=null, lastName=Blackstone, suffix=null), contact=Contact(primaryPhone=433-544-6555, secondaryPhone=223-445-6767, email=susan.m.blackstone@emailisus.com), address=Address(type=SHIPPING, description=Home Sweet Home, address1=33 Oak Avenue, address2=null, city=Nowhere, state=VT, postalCode=444556-9090), order=Order(guid=05f3d73c-df01-4b31-87b0-3b65065222bd, orderStatusEvents=[OrderStatusEvent(timestamp=1527996053859, orderStatusType=APPROVED, note=null)], orderItems=[OrderItem(product=Product(id=null, guid=d01fde07-7c24-49c5-a5f1-bc2ce1f14c48, title=Red Widget, description=Reliable Red Widget, price=3.99), quantity=4)]))' to topic='orders.order.fulfill'
+2018-06-06 21:07:43.465  INFO [-,b16677dbfc8004ff,f68d68698f81c7d9,false] 2460 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='CustomerOrders(id=5b18855da8d0560aab7593f1, name=Name(title=Mr., firstName=John, middleName=S., lastName=Doe, suffix=Jr.), contact=Contact(primaryPhone=555-666-7777, secondaryPhone=555-444-9898, email=john.doe@internet.com), addresses=[Address(type=BILLING, description=My cc billing address, address1=123 Oak Street, address2=null, city=Sunrise, state=CA, postalCode=12345-6789), Address(type=SHIPPING, description=My home address, address1=123 Oak Street, address2=null, city=Sunrise, state=CA, postalCode=12345-6789)], orders=null)'
+2018-06-06 21:07:43.824  INFO [-,b16677dbfc8004ff,f68d68698f81c7d9,false] 2460 --- [ntainer#0-0-C-1] org.mongodb.driver.connection            : Opened connection [connectionId{localValue:2, serverValue:7}] to localhost:27017
+2018-06-06 21:07:43.915  INFO [-,b16677dbfc8004ff,fe145a5213558276,false] 2460 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='CustomerOrders(id=5b18855da8d0560aab7593f2, name=Name(title=Ms., firstName=Mary, middleName=null, lastName=Smith, suffix=null), contact=Contact(primaryPhone=456-789-0001, secondaryPhone=456-222-1111, email=marysmith@yougotmail.com), addresses=[Address(type=BILLING, description=My CC billing address, address1=1234 Main Street, address2=null, city=Anywhere, state=NY, postalCode=45455-66677), Address(type=SHIPPING, description=Home Sweet Home, address1=1234 Main Street, address2=null, city=Anywhere, state=NY, postalCode=45455-66677)], orders=null)'
+2018-06-06 21:07:43.922  INFO [-,b16677dbfc8004ff,9d8ee9e7dfcd4c85,false] 2460 --- [ntainer#0-0-C-1] com.storefront.kafka.Receiver            : received payload='CustomerOrders(id=5b18855da8d0560aab7593f3, name=Name(title=Ms., firstName=Susan, middleName=null, lastName=Blackstone, suffix=null), contact=Contact(primaryPhone=433-544-6555, secondaryPhone=223-445-6767, email=susan.m.blackstone@emailisus.com), addresses=[Address(type=BILLING, description=My CC billing address, address1=33 Oak Avenue, address2=null, city=Nowhere, state=VT, postalCode=444556-9090), Address(type=SHIPPING, description=Home Sweet Home, address1=33 Oak Avenue, address2=null, city=Nowhere, state=VT, postalCode=444556-9090)], orders=null)'
+2
 ```
 
 Output from Kafka container using the following command.
@@ -285,9 +314,10 @@ kafka-console-consumer.sh \
 Kafka Consumer Output
 
 ```text
-{"id":null,"timestamp":1528000529908,"name":{"title":"Mr.","firstName":"John","middleName":"S.","lastName":"Doe","suffix":"Jr."},"contact":{"primaryPhone":"555-666-7777","secondaryPhone":"555-444-9898","email":"john.doe@internet.com"},"address":{"type":"SHIPPING","description":"My home address","address1":"123 Oak Street","address2":null,"city":"Sunrise","state":"CA","postalCode":"12345-6789"},"order":{"guid":"617e9b8f-970c-487d-b4b7-faad870090c7","orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"f3b9bdce-10d8-4c22-9861-27149879b3c1","title":"Orange Widget","description":"Opulent Orange Widget","price":9.99},"quantity":3},{"product":{"id":null,"guid":"7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37","title":"Green Widget","description":"Gorgeous Green Widget","price":11.99},"quantity":4}]}}
-{"id":null,"timestamp":1528000530153,"name":{"title":"Ms.","firstName":"Mary","middleName":null,"lastName":"Smith","suffix":null},"contact":{"primaryPhone":"456-789-0001","secondaryPhone":"456-222-1111","email":"marysmith@yougotmail.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"},"order":{"guid":"d51113cd-fbc1-45b3-b3e9-53b78d22b5bf","orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":1},{"product":{"id":null,"guid":"4efe33a1-722d-48c8-af8e-7879edcad2fa","title":"Purple Widget","description":"Pretty Purple Widget","price":7.99},"quantity":4},{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":4}]}}
-{"id":null,"timestamp":1528000530156,"name":{"title":"Ms.","firstName":"Susan","middleName":null,"lastName":"Blackstone","suffix":null},"contact":{"primaryPhone":"433-544-6555","secondaryPhone":"223-445-6767","email":"susan.m.blackstone@emailisus.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"33 Oak Avenue","address2":null,"city":"Nowhere","state":"VT","postalCode":"444556-9090"},"order":{"guid":"05f3d73c-df01-4b31-87b0-3b65065222bd","orderStatusEvents":[{"timestamp":1527996053859,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"d01fde07-7c24-49c5-a5f1-bc2ce1f14c48","title":"Red Widget","description":"Reliable Red Widget","price":3.99},"quantity":4}]}}```
+{"timestamp":1528334218821,"name":{"title":"Mr.","firstName":"John","middleName":"S.","lastName":"Doe","suffix":"Jr."},"contact":{"primaryPhone":"555-666-7777","secondaryPhone":"555-444-9898","email":"john.doe@internet.com"},"address":{"type":"SHIPPING","description":"My home address","address1":"123 Oak Street","address2":null,"city":"Sunrise","state":"CA","postalCode":"12345-6789"},"order":{"guid":"facb2d0c-4ae7-4d6c-96a0-293d9c521652","orderStatusEvents":[{"timestamp":1528333926586,"orderStatusType":"CREATED","note":null},{"timestamp":1528333926586,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"7f3c9c22-3c0a-47a5-9a92-2bd2e23f6e37","title":"Green Widget","description":"Gorgeous Green Widget","price":11.99},"quantity":5}]}}
+{"timestamp":1528334218824,"name":{"title":"Ms.","firstName":"Mary","middleName":null,"lastName":"Smith","suffix":null},"contact":{"primaryPhone":"456-789-0001","secondaryPhone":"456-222-1111","email":"marysmith@yougotmail.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"1234 Main Street","address2":null,"city":"Anywhere","state":"NY","postalCode":"45455-66677"},"order":{"guid":"5f900d92-e2a2-484f-8e9c-7e0a24b093fd","orderStatusEvents":[{"timestamp":1528333926586,"orderStatusType":"CREATED","note":null},{"timestamp":1528333926586,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":5},{"product":{"id":null,"guid":"a9d5a5c7-4245-4b4e-b1c3-1d3968f36b2d","title":"Yellow Widget","description":"Amazing Yellow Widget","price":5.99},"quantity":4}]}}
+{"timestamp":1528334218838,"name":{"title":"Ms.","firstName":"Susan","middleName":null,"lastName":"Blackstone","suffix":null},"contact":{"primaryPhone":"433-544-6555","secondaryPhone":"223-445-6767","email":"susan.m.blackstone@emailisus.com"},"address":{"type":"SHIPPING","description":"Home Sweet Home","address1":"33 Oak Avenue","address2":null,"city":"Nowhere","state":"VT","postalCode":"444556-9090"},"order":{"guid":"f52e2930-ef31-44db-a53c-b7ba4ae3f5cf","orderStatusEvents":[{"timestamp":1528333926586,"orderStatusType":"CREATED","note":null},{"timestamp":1528333926586,"orderStatusType":"APPROVED","note":null}],"orderItems":[{"product":{"id":null,"guid":"d01fde07-7c24-49c5-a5f1-bc2ce1f14c48","title":"Red Widget","description":"Reliable Red Widget","price":3.99},"quantity":2},{"product":{"id":null,"guid":"4efe33a1-722d-48c8-af8e-7879edcad2fa","title":"Purple Widget","description":"Pretty Purple Widget","price":7.99},"quantity":5}]}}
+```
 
 The `orders.order.fulfill` sends pending orders (FulfillmentRequest) to fulfillment, via topic
 
