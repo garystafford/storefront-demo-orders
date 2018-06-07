@@ -1,8 +1,7 @@
 package com.storefront.kafka;
 
 import com.storefront.model.CustomerOrders;
-import com.storefront.model.Order;
-import com.storefront.model.OrderStatusEventChange;
+import com.storefront.model.OrderStatusChangeEvent;
 import com.storefront.respository.CustomerOrdersRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,19 +40,19 @@ public class Receiver {
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.fulfillment-order}")
-    public void receiveOrderStatusEvents(OrderStatusEventChange orderStatusEventChange) {
+    public void receiveOrderStatusEvents(OrderStatusChangeEvent orderStatusChangeEvent) {
 
-        log.info("received payload='{}'", orderStatusEventChange);
+        log.info("received payload='{}'", orderStatusChangeEvent);
         latch.countDown();
 
         Criteria criteria = Criteria.where("orders.guid")
-                .is(orderStatusEventChange.getGuid());
+                .is(orderStatusChangeEvent.getGuid());
         Query query = Query.query(criteria);
 //        CustomerOrders customerOrders = mongoTemplate.findOne(query, CustomerOrders.class, "customer.orders");
 //        log.info(customerOrders.toString());
 
         Update update = new Update();
-        update.addToSet("orders.$.orderStatusEvents", orderStatusEventChange.getOrderStatusEvent());
+        update.addToSet("orders.$.orderStatusEvents", orderStatusChangeEvent.getOrderStatusEvent());
         mongoTemplate.updateFirst(query, update, "customer.orders");
     }
 }
