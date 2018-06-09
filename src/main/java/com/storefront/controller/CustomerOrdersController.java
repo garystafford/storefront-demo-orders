@@ -58,7 +58,7 @@ public class CustomerOrdersController {
 
         customerOrdersRepository.saveAll(customerOrdersList);
 
-        return new ResponseEntity("Four orders added to customer orders", HttpStatus.OK);
+        return new ResponseEntity("Sample orders added to customer orders", HttpStatus.OK);
     }
 
     @RequestMapping(path = "/summary", method = RequestMethod.GET)
