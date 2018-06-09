@@ -73,6 +73,8 @@ public class CustomerOrdersController {
     public ResponseEntity<String> fulfillSampleOrder() {
 
         Criteria elementMatchCriteria = Criteria.where("orders.orderStatusEvents")
+                .size(2)
+                .elemMatch(Criteria.where("orderStatusType").is(OrderStatusType.CREATED))
                 .elemMatch(Criteria.where("orderStatusType").is(OrderStatusType.APPROVED));
         Query query = Query.query(elementMatchCriteria);
         List<CustomerOrders> customerOrdersList = mongoTemplate.find(query, CustomerOrders.class);
@@ -95,9 +97,13 @@ public class CustomerOrdersController {
 
             fulfillmentRequestEvent.setAddress(shippingAddress);
 
-            // where the last order status event in list is approved...
+            // order where the first order status event in list is created...
+            // order where the last order status event in list is approved...
             Order pendingOrder = customerOrders.getOrders()
                     .stream()
+                    .filter(o -> o.getOrderStatusEvents()
+                            .get(0)
+                            .getOrderStatusType().equals(OrderStatusType.CREATED))
                     .filter(o -> o.getOrderStatusEvents()
                             .get(o.getOrderStatusEvents().size() - 1)
                             .getOrderStatusType().equals(OrderStatusType.APPROVED))
