@@ -8,7 +8,7 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FulfillmentRequest {
+public class FulfillmentRequestEvent {
 
     @NonNull
     private Long timestamp;
