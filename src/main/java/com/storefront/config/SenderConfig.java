@@ -1,7 +1,7 @@
 package com.storefront.config;
 
 import com.storefront.kafka.Sender;
-import com.storefront.model.FulfillmentRequestEvent;
+import com.storefront.model.FulfillmentEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,13 +35,13 @@ public class SenderConfig {
     }
 
     @Bean
-    public ProducerFactory<String, FulfillmentRequestEvent> producerFactory() {
+    public ProducerFactory<String, FulfillmentEvent> producerFactory() {
 
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    public KafkaTemplate<String, FulfillmentRequestEvent> kafkaTemplate() {
+    public KafkaTemplate<String, FulfillmentEvent> kafkaTemplate() {
 
         return new KafkaTemplate<>(producerFactory());
     }

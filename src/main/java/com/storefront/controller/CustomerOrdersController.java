@@ -83,11 +83,11 @@ public class CustomerOrdersController {
 
 
         for (CustomerOrders customerOrders : customerOrdersList) {
-            FulfillmentRequestEvent fulfillmentRequestEvent = new FulfillmentRequestEvent();
+            FulfillmentEvent fulfillmentEvent = new FulfillmentEvent();
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            fulfillmentRequestEvent.setTimestamp(timestamp.getTime());
-            fulfillmentRequestEvent.setName(customerOrders.getName());
-            fulfillmentRequestEvent.setContact(customerOrders.getContact());
+            fulfillmentEvent.setTimestamp(timestamp.getTime());
+            fulfillmentEvent.setName(customerOrders.getName());
+            fulfillmentEvent.setContact(customerOrders.getContact());
 
             Address shippingAddress = customerOrders.getAddresses()
                     .stream()
@@ -95,7 +95,7 @@ public class CustomerOrdersController {
                     .findFirst()
                     .orElse(null);
 
-            fulfillmentRequestEvent.setAddress(shippingAddress);
+            fulfillmentEvent.setAddress(shippingAddress);
 
             // order where the first order status event in list is created...
             // order where the last order status event in list is approved...
@@ -112,9 +112,9 @@ public class CustomerOrdersController {
 
             log.info("pending order: " + pendingOrder + '\n');
 
-            fulfillmentRequestEvent.setOrder(pendingOrder);
+            fulfillmentEvent.setOrder(pendingOrder);
 
-            sender.send(topic, fulfillmentRequestEvent);
+            sender.send(topic, fulfillmentEvent);
         }
 
         return new ResponseEntity("All 'Approved' orders sent for fulfillment", HttpStatus.OK);
