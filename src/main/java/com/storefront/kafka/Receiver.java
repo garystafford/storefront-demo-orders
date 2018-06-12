@@ -48,8 +48,6 @@ public class Receiver {
         Criteria criteria = Criteria.where("orders.guid")
                 .is(orderStatusChangeEvent.getGuid());
         Query query = Query.query(criteria);
-//        CustomerOrders customerOrders = mongoTemplate.findOne(query, CustomerOrders.class, "customer.orders");
-//        log.info(customerOrders.toString());
 
         Update update = new Update();
         update.addToSet("orders.$.orderStatusEvents", orderStatusChangeEvent.getOrderStatusEvent());
