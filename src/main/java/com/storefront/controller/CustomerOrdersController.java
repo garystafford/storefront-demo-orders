@@ -97,27 +97,33 @@ public class CustomerOrdersController {
 
             fulfillmentRequestEvent.setAddress(shippingAddress);
 
-            // order where the first order status event in list is created...
-            // order where the last order status event in list is approved...
-            Order pendingOrder = customerOrders.getOrders()
-                    .stream()
-                    .filter(o -> o.getOrderStatusEvents()
-                            .get(0)
-                            .getOrderStatusType().equals(OrderStatusType.CREATED))
-                    .filter(o -> o.getOrderStatusEvents()
-                            .get(o.getOrderStatusEvents().size() - 1)
-                            .getOrderStatusType().equals(OrderStatusType.APPROVED))
-                    .findFirst()
-                    .orElse(null);
+            try {
+                // order where the first order status event in list is created...
+                // order where the last order status event in list is approved...
 
-            log.info("pending order: " + pendingOrder + '\n');
+                Order pendingOrder = customerOrders.getOrders()
+                        .stream()
+                        .filter(o -> o.getOrderStatusEvents()
+                                .get(0)
+                                .getOrderStatusType().equals(OrderStatusType.CREATED))
+                        .filter(o -> o.getOrderStatusEvents()
+                                .get(o.getOrderStatusEvents().size() - 1)
+                                .getOrderStatusType().equals(OrderStatusType.APPROVED))
+                        .findFirst()
+                        .orElse(null);
 
-            fulfillmentRequestEvent.setOrder(pendingOrder);
+                log.info("pending order: " + pendingOrder);
 
-            sender.send(topic, fulfillmentRequestEvent);
+                fulfillmentRequestEvent.setOrder(pendingOrder);
+
+                sender.send(topic, fulfillmentRequestEvent);
+
+            } catch (NullPointerException ex) {
+                log.info(ex.getMessage());
+                return new ResponseEntity("No 'Approved' orders found", HttpStatus.NOT_FOUND);
+            }
+
         }
-
         return new ResponseEntity("All 'Approved' orders sent for fulfillment", HttpStatus.OK);
     }
-
 }
