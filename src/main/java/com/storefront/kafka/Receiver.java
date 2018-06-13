@@ -40,7 +40,7 @@ public class Receiver {
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.fulfillment-order}")
-    public void receiveOrderStatusEvents(OrderStatusChangeEvent orderStatusChangeEvent) {
+    public void receiveOrderStatusChangeEvents(OrderStatusChangeEvent orderStatusChangeEvent) {
 
         log.info("received payload='{}'", orderStatusChangeEvent);
         latch.countDown();
