@@ -12,11 +12,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @RequiredArgsConstructor
-@Document(collection = "products")
 public class Product {
-
-    @Id
-    private String id;
 
     @NonNull
     private String guid;
