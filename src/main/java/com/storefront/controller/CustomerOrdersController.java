@@ -69,7 +69,7 @@ public class CustomerOrdersController {
         return new ResponseEntity<>(Collections.singletonMap("customers", customerOrdersList), HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/fulfill", method = RequestMethod.GET)
+    @RequestMapping(path = "/sample/fulfill", method = RequestMethod.GET)
     public ResponseEntity<String> fulfillSampleOrder() {
 
         Criteria elementMatchCriteria = Criteria.where("orders.orderStatusEvents")
