@@ -27,14 +27,14 @@ import java.util.Map;
 @RequestMapping("/customers")
 public class CustomerOrdersController {
 
-    private CustomerOrdersRepository customerOrdersRepository;
+    private final CustomerOrdersRepository customerOrdersRepository;
 
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Value("${spring.kafka.topic.orders-order}")
     private String topic;
 
-    private Sender sender;
+    private final Sender sender;
 
 
     @Autowired
@@ -58,10 +58,10 @@ public class CustomerOrdersController {
 
         customerOrdersRepository.saveAll(customerOrdersList);
 
-        return new ResponseEntity("Sample orders added to customer orders", HttpStatus.OK);
+        return new ResponseEntity<>("Sample orders added to customer orders", HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/summary", method = RequestMethod.GET)
+    @RequestMapping(path =  "/summary", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Map<String, List<CustomerOrders>>> customerSummary() {
 
@@ -120,10 +120,10 @@ public class CustomerOrdersController {
 
             } catch (NullPointerException ex) {
                 log.info(ex.getMessage());
-                return new ResponseEntity("No 'Approved' orders found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("No 'Approved' orders found", HttpStatus.NOT_FOUND);
             }
 
         }
-        return new ResponseEntity("All 'Approved' orders sent for fulfillment", HttpStatus.OK);
+        return new ResponseEntity<>("All 'Approved' orders sent for fulfillment", HttpStatus.OK);
     }
 }
