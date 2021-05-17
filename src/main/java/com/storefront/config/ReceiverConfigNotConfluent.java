@@ -17,7 +17,7 @@ import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import java.util.HashMap;
 import java.util.Map;
 
-@Profile("!gke")
+@Profile("!confluent")
 @Configuration
 @EnableKafka
 public class ReceiverConfigNotConfluent implements ReceiverConfig {
@@ -49,8 +49,10 @@ public class ReceiverConfigNotConfluent implements ReceiverConfig {
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
 
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
-                new StringDeserializer());
+        return new DefaultKafkaConsumerFactory<>(consumerConfigs(),
+                new StringDeserializer(),
+                new StringDeserializer()
+        );
     }
 
     @Bean
@@ -71,4 +73,3 @@ public class ReceiverConfigNotConfluent implements ReceiverConfig {
         return new Receiver();
     }
 }
-

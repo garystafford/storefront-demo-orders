@@ -24,7 +24,7 @@ public class Receiver {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    private CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch = new CountDownLatch(1);
 
     public CountDownLatch getLatch() {
 

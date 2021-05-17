@@ -16,7 +16,7 @@ import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import java.util.HashMap;
 import java.util.Map;
 
-@Profile("gke")
+@Profile("confluent")
 @Configuration
 @EnableKafka
 public class ReceiverConfigConfluent implements ReceiverConfig {
