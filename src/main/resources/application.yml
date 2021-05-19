@@ -59,16 +59,6 @@ logging:
   level:
     root: INFO
 ---
-spring:
-  config:
-    activate:
-      on-profile: confluent
-server:
-  port: 8080
-logging:
-  level:
-    root: INFO
----
 server:
   port: 8080
 spring:
