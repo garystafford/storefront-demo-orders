@@ -77,7 +77,7 @@ spring:
       on-profile: minikube
   data:
     mongodb:
-      uri: mongodb://mongo.dev:27017/accounts
+      uri: mongodb://mongo.dev:27017/orders
   kafka:
     bootstrap-servers: kafka-cluster.dev:9092
 management:
